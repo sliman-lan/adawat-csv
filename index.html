@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حذف الصفوف المكررة من CSV اون لاين - أداة مجانية | منظف التكرارات السحري</title>
+    <meta name="author" content="منظف التكرارات السحري">
+    <meta name="google-site-verification" content="6B7quit4ty_RxTxU2ibo4-qdnhfUQU1Iw2aFF836Dps" />
+    <meta name="description"
+        content="أداة مجانية 100% لحذف الصفوف المكررة من ملفات CSV اون لاين. اختر العمود واحذف التكرارات فوراً دون رفع بياناتك لأي خادم. خصوصية كاملة.">
+    <meta name="description"
+        content="أداة مجانية لتنظيف ملفات CSV من الصفوف المكررة أونلاين. بياناتك لا تغادر جهازك. اختر العمود واحذف التكرارات فوراً.">
+    <meta name="keywords" content="حذف مكررات CSV, تنظيف CSV, حذف صفوف مكررة, أداة CSV, تنظيف البيانات, عربي">
+    <!-- Bootstrap 5 RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- خط عربي حديث -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Papa Parse -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #e8f0fe 0%, #f4f6f9 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .drop-zone {
+            border: 2px dashed #6c757d;
+            border-radius: 1rem;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .drop-zone.dragover {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+            transform: scale(1.02);
+        }
+
+        .drop-zone .icon {
+            font-size: 3.5rem;
+            color: #0d6efd;
+        }
+
+        .btn-primary {
+            border-radius: 2rem;
+            font-weight: 600;
+            padding: 0.6rem 2rem;
+        }
+
+        .btn-success {
+            border-radius: 2rem;
+        }
+
+        .file-info-box {
+            background-color: #e7f1ff;
+            border-radius: 0.75rem;
+        }
+
+        .result-box {
+            background-color: #d1e7dd;
+            border-radius: 1rem;
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        #loadingSpinner {
+            display: none;
+        }
+    </style>
+    <link rel="canonical" href="https://adawat-csv.tiiny.site/">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧹</text></svg>">
+    <meta property="og:title" content="حذف الصفوف المكررة من CSV اون لاين - أداة مجانية">
+    <meta property="og:description"
+        content="ارفع ملف CSV، اختر العمود، واحذف التكرارات فوراً بدون ما يغادر ملفك جهازك. أداة عربية بسيطة ومجانية.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://adawat-csv.tiiny.site/">
+    <meta property="og:image" content="https://adawat-csv.tiiny.site/preview.png">
+    <!-- ستضيف صورة لاحقاً، لكن ضعها الآن -->
+    <meta property="og:locale" content="ar_AR">
+    <!-- Schema.org structured data for SoftwareApplication -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "منظف التكرارات السحري - حذف الصفوف المكررة من CSV",
+  "description": "أداة مجانية تعمل داخل المتصفح لحذف الصفوف المكررة من ملفات CSV بناءً على عمود يختاره المستخدم. لا يتم إرسال البيانات إلى أي خادم.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Windows, Mac, Linux, Android, iOS",
+  "offers": {
+    "@type": "Offer",
+    "price": "0"
+  },
+  "browserRequirements": "Requires JavaScript"
+}
+</script>
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧹</svg>">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- البطاقة الرئيسية -->
+                <div class="card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h1 class="fw-bold text-primary">
+                            <i class="bi bi-magic"></i> منظف التكرارات السحري
+                        </h1>
+                        <!-- بجانب العنوان h1 أو أسفله -->
+                        <div class="text-center mb-3">
+                            <a href="#guide" class="btn btn-sm btn-outline-primary rounded-pill">
+                                <i class="bi bi-arrow-down-circle"></i> اقرأ الدليل الكامل
+                            </a>
+                        </div>
+                        <p class="text-muted lead">ارفع ملف CSV، اختر العمود، واحذف الصفوف المكررة فوراً. <br
+                                class="d-none d-md-block">بياناتك لا تغادر جهازك أبداً.</p>
+                        <!-- زر لتحميل ملف تجريبي -->
+                        <button class="btn btn-sm btn-outline-secondary mt-2" id="sampleBtn">
+                            <i class="bi bi-download"></i> تحميل ملف CSV تجريبي
+                        </button>
+                    </div>
+
+                    <!-- منطقة الرفع -->
+                    <div class="drop-zone" id="dropZone">
+                        <div class="icon mb-3">
+                            <i class="bi bi-cloud-upload"></i>
+                        </div>
+                        <h5 class="fw-bold">اسحب وأفلت ملف CSV هنا</h5>
+                        <p class="text-muted mb-0">أو <span class="text-primary fw-bold">اضغط للتصفح</span></p>
+                        <input type="file" id="fileInput" accept=".csv" class="d-none">
+                    </div>
+
+                    <!-- معلومات الملف -->
+                    <div class="file-info-box p-3 mt-4 d-none" id="fileInfo">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-earmark-text fs-4 text-primary ms-2"></i>
+                            <div>
+                                <span class="fw-bold" id="fileName"></span><br>
+                                <small class="text-muted">عدد الصفوف: <span id="rowCount"
+                                        class="fw-bold">0</span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اختيار العمود -->
+                    <div class="mt-4 d-none" id="columnSelector">
+                        <label for="columnSelect" class="form-label fw-bold">
+                            <i class="bi bi-funnel"></i> اختر العمود المرجعي:
+                        </label>
+                        <select id="columnSelect" class="form-select form-select-lg rounded-pill"></select>
+                    </div>
+
+                    <!-- زر التنظيف -->
+                    <div class="d-grid mt-4">
+                        <button class="btn btn-primary btn-lg" id="cleanBtn" disabled>
+                            <i class="bi bi-stars"></i> امسح التكرارات الآن
+                        </button>
+                    </div>
+
+                    <!-- مؤشر التحميل -->
+                    <div class="text-center mt-3 d-none" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">جاري المعالجة...</span>
+                        </div>
+                        <p class="mt-2 fw-bold">جاري تنظيف الملف...</p>
+                    </div>
+
+                    <!-- صندوق النتيجة -->
+                    <div class="result-box p-4 mt-4 d-none" id="resultBox">
+                        <h5 class="fw-bold text-success"><i class="bi bi-check-circle-fill"></i> <span
+                                id="resultText"></span></h5>
+                        <a class="btn btn-success btn-lg mt-3" id="downloadLink" href="#" download="ملف_نظيف.csv">
+                            <i class="bi bi-download"></i> تحميل الملف النظيف
+                        </a>
+                    </div>
+
+                    <!-- تذييل -->
+                    <div class="footer-note text-center mt-4">
+                        <i class="bi bi-shield-lock-fill"></i> جميع العمليات تتم داخل متصفحك. لا يتم إرسال أي بيانات
+                        للإنترنت.
+                    </div>
+                </div>
+
+                <!-- تذييل خارجي -->
+                <div class="text-center mt-4 text-muted small">
+                    صُنع بـ <i class="bi bi-heart-fill text-danger"></i> لخدمة المحتوى العربي
+                </div>
+                <!-- ========== المقال الشامل ========== -->
+            </div>
+            <div class="row justify-content-center mt-5">
+                <div class="col-lg-8">
+                    <article class="card p-4 p-md-5">
+                        <a name="guide"></a>
+                        <h2 class="fw-bold text-primary mb-4">
+                            <i class="bi bi-book"></i> الدليل الكامل: حذف الصفوف المكررة من CSV وتنظيف البيانات
+                        </h2>
+
+                        <div class="mb-4">
+                            <p class="lead">عندما تتعامل مع ملفات البيانات، وخاصة قبل البدء بتدريب نماذج الذكاء
+                                الاصطناعي أو التحليل الإحصائي، فإن <strong>وجود صفوف مكررة</strong> يُعتبر أحد أكثر
+                                المشاكل شيوعاً وتأثيراً. الملفات التي تحتوي على تكرارات تسبب تحيزاً في النموذج،
+                                وتُنتج إحصائيات خاطئة، وتهدر مساحة التخزين. في هذا الدليل الشامل، سنتعلم كيف تتعامل
+                                مع هذه المشكلة بسهولة، وسنقدم لك <strong>أداة مجانية لتنظيف ملفات CSV من التكرارات
+                                    مباشرةً من متصفحك، بدون تحميل أي برنامج</strong>.</p>
+                        </div>
+
+                        <h3 class="fw-bold">لماذا التكرارات خطيرة على تحليل البيانات؟</h3>
+                        <p>تخيل أنك تبني نموذجاً للتنبؤ بأسعار العقارات. إذا كان لديك 100 صف مكرر عن عقار واحد،
+                            سيعتقد النموذج أن هذا النوع من العقارات أكثر شيوعاً مما هو في الواقع. النتيجة: نموذج غير
+                            دقيق وقرارات مبنية على معلومات مضللة. كذلك، في التقارير الدورية، الصفوف المكررة قد تؤدي
+                            إلى مضاعفة الأرقام المالية!</p>
+                        <ul>
+                            <li><strong>في تعلم الآلة:</strong> تكرار البيانات يُحدث Overfitting، حيث يحفظ النموذج
+                                التكرارات بدلاً من تعلم النمط.</li>
+                            <li><strong>في قواعد البيانات:</strong> انتهاك لمبدأ المفتاح الفريد (Primary Key).</li>
+                            <li><strong>في التحليل اليدوي:</strong> ضياع الوقت في اكتشاف الأخطاء.</li>
+                        </ul>
+
+                        <h3 class="fw-bold mt-4">الطرق التقليدية لإزالة التكرارات ومشاكلها</h3>
+                        <p>بالتأكيد، يمكنك استخدام أدوات مثل Excel أو كتابة كود بلغة Python لحذف المكررات، ولكن لكل
+                            منها عقبات:</p>
+                        <ol>
+                            <li><strong>Excel:</strong> استخدام "Remove Duplicates" يكون يدوياً ويصبح صعباً عند
+                                التعامل مع ملفات ضخمة (أكثر من 100,000 صف). كذلك لا يمكن أتمتة العملية بسهولة.</li>
+                            <li><strong>Python (Pandas):</strong> يتطلب منك كتابة سطرين من الكود
+                                (<code>df.drop_duplicates()</code>)، ولكن هذا يحتاج إلى بيئة برمجة، تنصيب مكتبات،
+                                وقد لا يكون متاحاً للجميع. كما أنك تحتاج إلى فتح الملف ومعاينته بعد العملية.</li>
+                            <li><strong>الأدوات الإنجليزية على الإنترنت:</strong> معظمها لا يدعم الواجهة العربية،
+                                وغالباً ما تكون مليئة بالإعلانات، كما أنك لا تستطيع ضمان خصوصية بياناتك لأنها تُرفع
+                                إلى خادم خارجي.</li>
+                        </ol>
+
+                        <h3 class="fw-bold mt-4">الحل الأذكى: أداة "منظف التكرارات السحري"</h3>
+                        <p>لهذا السبب قمنا بتطوير <strong>أداة عربية مجانية</strong> تتفوق على كل الطرق السابقة.
+                            الأداة التي في أعلى هذه الصفحة تقدم المزايا التالية:</p>
+                        <ul>
+                            <li>✅ <strong>خصوصية مطلقة:</strong> جميع العمليات تتم داخل متصفحك. بيانات ملف CSV لا
+                                تخرج من جهازك إلى أي خادم، وهذا مهم جداً عند التعامل مع بيانات حساسة أو تنافسية.
+                            </li>
+                            <li>✅ <strong>تحديد العمود المرجعي:</strong> لا تحذف التكرارات عبثاً، بل اختر العمود (أو
+                                الأعمدة) الذي تريد فحص التكرار بناءً عليه، مثلاً عمود "ID" أو "البريد الإلكتروني".
+                            </li>
+                            <li>✅ <strong>سرعة فائقة:</strong> بفضل مكتبة Papa Parse، يمكن للأداة معالجة ملفات تحتوي
+                                على عشرات الآلاف من الصفوف في ثوانٍ معدودة، حتى على الأجهزة الضعيفة.</li>
+                            <li>✅ <strong>لا حاجة لأي برنامج:</strong> تعمل مباشرة من المتصفح على ويندوز، ماك،
+                                لينكس، أندرويد، وآيفون.</li>
+                        </ul>
+
+                        <h3 class="fw-bold mt-4">كيف تستخدم الأداة في 3 خطوات فقط؟</h3>
+                        <div class="row text-center g-4 mt-2">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3">
+                                    <i class="bi bi-upload fs-1 text-primary"></i>
+                                    <h5>1. ارفع الملف</h5>
+                                    <p>اسحب وأفلت ملف CSV، أو اضغط على المنطقة لرفعه.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3">
+                                    <i class="bi bi-funnel fs-1 text-primary"></i>
+                                    <h5>2. اختر العمود</h5>
+                                    <p>من القائمة المنسدلة، حدد العمود الذي تريد فحص التكرار بناءً عليه.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3">
+                                    <i class="bi bi-download fs-1 text-primary"></i>
+                                    <h5>3. نظّف ونزّل</h5>
+                                    <p>اضغط على الزر، ستُحذف التكرارات فوراً، ثم حمّل ملفك النظيف.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="#" class="btn btn-primary btn-lg"
+                                onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+                                <i class="bi bi-arrow-up-circle"></i> جرب الأداة الآن (أعلى الصفحة)
+                            </a>
+                        </div>
+
+                        <h3 class="fw-bold mt-5">أسئلة شائعة عن تنظيف ملفات CSV</h3>
+
+                        <h5>هل أحتاج إلى إنترنت لاستخدام الأداة؟</h5>
+                        <p>نعم، ولكن فقط لتحميل الصفحة. بعد أن تُفتح الصفحة، كل العمليات تحصل محلياً على جهازك، لذا
+                            حتى لو انقطع الإنترنت أثناء التنظيف، لن تتأثر العملية.</p>
+
+                        <h5>ما حجم الملف الأقصى المسموح؟</h5>
+                        <p>لأن العملية كلها داخل المتصفح، تعتمد السرعة على ذاكرة جهازك. بشكل عام، يمكن التعامل مع
+                            ملفات تصل إلى 50 ميغابايت بسهولة على أي حاسوب حديث. إذا كان ملفك أكبر، ننصح بتقسيمه أو
+                            استخدام Python.</p>
+
+                        <h5>هل يمكن حذف التكرارات بناءً على أكثر من عمود؟</h5>
+                        <p>حالياً تدعم الأداة الاختيار الأحادي. إذا كنت تبحث عن ميزة الأعمدة المتعددة، أضف تعليقك
+                            وسنطور الأداة بناءً على طلب المستخدمين!</p>
+
+                        <h5>ماذا يحدث للملف الأصلي؟</h5>
+                        <p>الملف الأصلي يبقى كما هو على جهازك. أنت تقوم بتحميل نسخة نظيفة جديدة تماماً، ولا يتم
+                            تعديل الملف الأصلي أبداً.</p>
+
+                        <div class="alert alert-info mt-4" role="alert">
+                            <i class="bi bi-lightbulb-fill"></i> <strong>نصيحة خبير:</strong> قبل حذف أي تكرار، تأكد
+                            من أن العمود الذي اخترته يمثل فعلاً معرّفاً فريداً (مثل رقم الهوية أو البريد
+                            الإلكتروني). أحياناً يكون التكرار مطلوباً (مثل تكرار منتج في فاتورة شراء)، فهنا لا
+                            تستخدم أداة الحذف.
+                        </div>
+
+                        <p class="text-muted mt-4">نتمنى أن تكون هذه الأداة مفيدة لك في رحلتك مع تحليل البيانات
+                            والذكاء الاصطناعي. إذا واجهت أي مشكلة أو لديك اقتراح، لا تتردد في التواصل معنا.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ---------- المنطق البرمجي (بدون تغيير) ----------
+        let parsedData = [];
+        let originalCSV = '';
+        let fileName = '';
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileNameSpan = document.getElementById('fileName');
+        const rowCountSpan = document.getElementById('rowCount');
+        const columnSelector = document.getElementById('columnSelector');
+        const columnSelect = document.getElementById('columnSelect');
+        const cleanBtn = document.getElementById('cleanBtn');
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+        const downloadLink = document.getElementById('downloadLink');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const sampleBtn = document.getElementById('sampleBtn');
+
+        // منع السلوك الافتراضي للسحب والإفلات
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        // تمييز المنطقة عند السحب
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        // معالجة إفلات الملف
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) processFile(files[0]);
+        });
+        // فتح نافذة الملفات
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        });
+
+        // زر العينة
+        sampleBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // منع فتح نافذة الرفع
+            const sampleCSV = "ID,Name,Age\n1,Ahmed,25\n2,Sara,30\n1,Ahmed,25\n3,Khaled,22\n2,Sara,30";
+            const blob = new Blob([sampleCSV], { type: 'text/csv' });
+            const fakeFile = new File([blob], "sample.csv", { type: 'text/csv' });
+            processFile(fakeFile);
+        });
+
+        function processFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                alert('الرجاء رفع ملف CSV فقط.');
+                return;
+            }
+            // إظهار مؤشر التحميل
+            loadingSpinner.classList.remove('d-none');
+            cleanBtn.disabled = true;
+            resultBox.classList.add('d-none');
+
+            fileName = file.name;
+            fileNameSpan.textContent = fileName;
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function (results) {
+                    loadingSpinner.classList.add('d-none');
+                    parsedData = results.data;
+                    originalCSV = Papa.unparse(parsedData);
+
+                    if (parsedData.length === 0 || results.meta.fields.length === 0) {
+                        alert('الملف فارغ أو لا يحتوي على أعمدة صالحة.');
+                        return;
+                    }
+
+                    rowCountSpan.textContent = parsedData.length;
+                    fileInfo.classList.remove('d-none');
+
+                    populateColumns(results.meta.fields);
+
+                    cleanBtn.disabled = false;
+                    columnSelector.classList.remove('d-none');
+                    resultBox.classList.add('d-none');
+                },
+                error: function (err) {
+                    loadingSpinner.classList.add('d-none');
+                    alert('خطأ في قراءة الملف: ' + err.message);
+                }
+            });
+        }
+
+        function populateColumns(fields) {
+            columnSelect.innerHTML = '';
+            fields.forEach(field => {
+                const option = document.createElement('option');
+                option.value = field;
+                option.textContent = field;
+                columnSelect.appendChild(option);
+            });
+        }
+
+        // عملية التنظيف
+        cleanBtn.addEventListener('click', () => {
+            const selectedColumn = columnSelect.value;
+            if (!selectedColumn) {
+                alert('الرجاء اختيار عمود.');
+                return;
+            }
+
+            const seen = new Set();
+            const cleanedData = [];
+            let duplicatesRemoved = 0;
+
+            parsedData.forEach(row => {
+                const value = row[selectedColumn]?.trim() ?? '';
+                if (!seen.has(value)) {
+                    seen.add(value);
+                    cleanedData.push(row);
+                } else {
+                    duplicatesRemoved++;
+                }
+            });
+
+            resultText.textContent = `تم حذف ${duplicatesRemoved} صفاً مكرراً بناءً على عمود "${selectedColumn}". العدد الجديد للصفوف: ${cleanedData.length}`;
+            resultBox.classList.remove('d-none');
+
+            const cleanedCSV = Papa.unparse(cleanedData);
+            const blob = new Blob([cleanedCSV], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = fileName.replace('.csv', '_نظيف.csv');
+        });
+    </script>
+</body>
+
+</html>
